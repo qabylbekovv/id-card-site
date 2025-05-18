@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Удостоверение личности</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: white;
+      font-family: sans-serif;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .header, .footer {
+      position: fixed;
+      left: 0;
+      right: 0;
+      background: white;
+      z-index: 10;
+    }
+
+    .header {
+      top: 0;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+    }
+
+    .header .title {
+      font-weight: bold;
+      font-size: 16px;
+      color: black;
+    }
+
+    .header .left, .header .right {
+      font-size: 24px;
+      color: black;
+    }
+
+    .footer {
+      bottom: 0;
+      height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px;
+    }
+
+    .button {
+      background-color: #007bff;
+      color: white;
+      border-radius: 8px;
+      font-size: 14px;
+      padding: 14px;
+      text-align: center;
+    }
+
+    .access-btn {
+      flex: 1;
+      margin-right: 10px;
+    }
+
+    .share-btn {
+      width: 50px;
+      text-align: center;
+    }
+
+    .main-content {
+      position: absolute;
+      top: 60px;
+      bottom: 70px;
+      left: 0;
+      right: 0;
+      background: white;
+      overflow: hidden;
+    }
+
+    .zoom-container {
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      touch-action: none;
+      background: white;
+    }
+
+    .zoom-container img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      transition: transform 0.1s ease-out;
+    }
+
+    input[type="file"] {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      z-index: 5;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="left">&#8592;</div>
+    <div class="title">Удостоверение личности</div>
+    <div class="right">&#8942;</div>
+  </div>
+
+  <div class="main-content">
+    <div class="zoom-container" id="zoomContainer">
+      <img id="bgImage" src="" alt="Загруженное изображение">
+      <input type="file" id="upload-bg" accept="image/*">
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="button access-btn">Открыть доступ</div>
+    <div class="button share-btn">&#x1F4E4;</div>
+  </div>
+
+  <script>
+    const uploadInput = document.getElementById("upload-bg");
+    const bgImage = document.getElementById("bgImage");
+
+    uploadInput.addEventListener("change", function () {
+      const file = this.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          bgImage.src = e.target.result;
+          bgImage.style.transform = "scale(1)";
+          scale = 1;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    let scale = 1;
+    let startDistance = 0;
+
+    const zoomContainer = document.getElementById("zoomContainer");
+
+    zoomContainer.addEventListener("touchstart", (e) => {
+      if (e.touches.length === 2) {
+        startDistance = getDistance(e.touches[0], e.touches[1]);
+      }
+    });
+
+    zoomContainer.addEventListener("touchmove", (e) => {
+      if (e.touches.length === 2) {
+        e.preventDefault();
+        const newDistance = getDistance(e.touches[0], e.touches[1]);
+        const delta = newDistance / startDistance;
+        scale *= delta;
+        scale = Math.max(0.5, Math.min(scale, 5));
+        startDistance = newDistance;
+        bgImage.style.transform = `scale(${scale})`;
+      }
+    });
+
+    function getDistance(touch1, touch2) {
+      return Math.sqrt(
+        Math.pow(touch1.pageX - touch2.pageX, 2) +
+        Math.pow(touch1.pageY - touch2.pageY, 2)
+      );
+    }
+  </script>
+
+</body>
+</html>
